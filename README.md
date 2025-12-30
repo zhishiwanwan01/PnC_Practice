@@ -1,1 +1,1 @@
-practices on Planning and controlling algorithms 
+Practices on Planning and Controlling algorithms 
