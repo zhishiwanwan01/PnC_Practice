@@ -1,0 +1,43 @@
+# ============================================================
+# Docker Compose 配置文件
+# ============================================================
+# 用途：简化 Docker 命令，定义服务配置（类似"启动配置文件"）
+# ============================================================
+
+# services - 定义服务列表
+# 一个 docker-compose 文件可以定义多个服务（比如：web服务、数据库服务等）
+services:
+  # python-dev - 服务名称（可以自定义）
+  python-dev:
+    # build - 构建配置
+    build:
+      # context - 构建上下文路径（. 表示当前目录）
+      context: .
+      # dockerfile - 指定使用哪个 Dockerfile
+      # 相当于命令：docker build -f Dockerfile .
+      dockerfile: Dockerfile
+
+    # volumes - 挂载卷（文件共享）
+    # . - 宿主机当前目录
+    # /workspace - 容器内的目录
+    # 作用：把你电脑上的当前目录映射到容器的 /workspace 目录
+    # 好处：在电脑上修改代码，容器里立即生效，不用重启容器
+    volumes:
+      - .:/workspace
+
+    # working_dir - 工作目录
+    # 进入容器后默认在这个目录（与 Dockerfile 的 WORKDIR 相同）
+    working_dir: /workspace
+
+    # ports - 端口映射
+    # 8888:8888 - 将容器的 8888 端口映射到主机的 8888 端口
+    # 作用：可以通过浏览器访问 Jupyter（http://localhost:8888）
+    ports:
+      - "8888:8888"
+
+    # stdin_open - 保持标准输入打开（相当于 docker run -i）
+    stdin_open: true
+
+    # tty - 分配一个伪终端（相当于 docker run -t）
+    # 合起来相当于 docker run -it，可以进行交互式操作
+    tty: true

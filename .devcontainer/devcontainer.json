@@ -1,0 +1,46 @@
+{
+  // ============================================================
+  // VS Code Dev Container 配置文件
+  // ============================================================
+  // 用途：在 VS Code 中直接使用容器进行开发
+  // 使用方法：在 VS Code 中按 F1，选择 "Dev Containers: Reopen in Container"
+  // ============================================================
+
+  // name - Dev Container 的显示名称
+  // 会在 VS Code 左下角显示
+  "name": "Python with uv",
+
+  // dockerComposeFile - 使用哪个 docker-compose 文件
+  "dockerComposeFile": "../docker-compose.yml",
+
+  // service - 使用 docker-compose 中的哪个服务
+  // 告诉 VS Code：用 docker-compose.yml 里的 python-dev 服务
+  "service": "python-dev",
+
+  // workspaceFolder - 在容器中打开哪个目录作为工作区
+  // VS Code 会在这个目录下打开
+  "workspaceFolder": "/workspace",
+
+  // customizations - 自定义配置
+  "customizations": {
+    "vscode": {
+      // extensions - 自动安装的 VS Code 插件
+      // 好处：打开容器时自动安装这些插件，不用手动安装
+      "extensions": [
+        "ms-python.python",        // Python 官方插件
+        "ms-python.vscode-pylance" // Python 语言服务器（代码补全、类型检查等）
+      ],
+
+      // settings - VS Code 设置
+      "settings": {
+        // python.defaultInterpreterPath - 指定 Python 解释器路径
+        // 告诉 VS Code 使用容器里的 Python
+        "python.defaultInterpreterPath": "/usr/local/bin/python"
+      }
+    }
+  },
+
+  // postCreateCommand - 容器创建后执行的命令
+  // 作用：显示 uv 和 Python 版本，验证环境是否正常（类似健康检查）
+  "postCreateCommand": "uv --version && python --version"
+}
