@@ -1,3 +1,4 @@
+import heapq
 import math
 
 import matplotlib.pyplot as plt
@@ -5,6 +6,9 @@ import matplotlib.pyplot as plt
 import cv2
 import numpy as np
 import pathlib
+
+# priority queue
+import heapq
 
 show_animation = True
 
@@ -57,11 +61,19 @@ class AStarPlanner:
         start_node = self.Node(*self.convert_coord_to_idx(start_x, start_y), 0.0, -1)
         goal_node = self.Node(*self.convert_coord_to_idx(goal_x, goal_y), 0.0, -1)
 
-        # TODO: create open_set and closed set
+        # TODO: DONE create open_set and closed set
+        # open_set is a priority queue implemented by heapq
+        open_set = []
+        heapq.heappush(open_set, (self.cal_heuristic_func(start_node, goal_node)+start_node.cost, start_node))
+        # closed_set is a dictionary
+        closed_set = {}
 
         # this is the astar algorithm main loop, you should finish it!
         while (len(open_set) > 0):
-            # TODO: 1. pop the node with lowest value of the f function from the open_set, and add it to the closedset
+            # TODO: DONE 1. pop the node with lowest value of the f function from the open_set, and add it to the closed_set
+
+            f_value, cur_node = heapq.heappop(open_set)
+            closed_set[cur_node.get_vec_index()] = cur_node
 
             # plot cur_node
             if show_animation:
@@ -75,10 +87,26 @@ class AStarPlanner:
                     plt.pause(0.0000001)
             
             # TODO: 2. determine whether the current node is the goal, and if so, stop searching
+            if (cur_node.x_idx, cur_node.y_idx) == (goal_node.x_idx, goal_node.y_idx):
+                # TODO: 2.1 如果找到goal，接下来做什么
+                pass
 
 
             # TODO: 3. expand neighbors of the current node
-            # for i, _ in enumerate(self.motion_model):
+            for i, neighbor in enumerate(self.motion_model):
+                neighbor_node = self.Node(
+                    cur_node.x_idx + neighbor[0],
+                    cur_node.y_idx + neighbor[1],
+                    cur_node.cost + neighbor[2],
+                    self.get_vec_index(cur_node)
+                )
+                if not self.check_node_validity(neighbor_node):
+                    continue
+                # TODO： 下面这一行的f值计算错误，需要修改
+                heapq.heappush(open_set, (f_value+neighbor[2]+self.cal_heuristic_func(neighbor_node, goal_node), neighbor_node))
+
+                
+
 
         if len(open_set) == 0:
             print("open_set is empty, can't find path")
