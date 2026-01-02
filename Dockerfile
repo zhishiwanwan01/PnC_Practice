@@ -12,12 +12,20 @@ FROM python:3.11-slim
 # RUN - 安装中文字体和系统工具
 # fonts-noto-cjk - Noto CJK 字体系列（支持中日韩文字）
 # fontconfig - 字体配置工具
+# libgl1 - OpenGL library (OpenCV 需要)
+# libglib2.0-0 - GLib library (OpenCV 需要)
+# libsm6, libxext6, libxrender1 - X11 libraries (OpenCV 需要)
 # fc-cache -fv - 刷新字体缓存
 # rm -rf /var/lib/apt/lists/* - 清理 apt 缓存，减小镜像体积
 RUN apt-get update && apt-get install -y \
     fonts-noto-cjk \
     fonts-noto-cjk-extra \
     fontconfig \
+    libgl1 \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender1 \
     && fc-cache -fv \
     && rm -rf /var/lib/apt/lists/*
 

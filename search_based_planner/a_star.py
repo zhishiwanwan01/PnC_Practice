@@ -6,6 +6,9 @@ import cv2
 import numpy as np
 import pathlib
 
+# priority queue implementation
+import heapq
+
 show_animation = True
 
 class AStarPlanner:
@@ -25,10 +28,10 @@ class AStarPlanner:
         # create 2d grid map
         self.obstacle_map = None
         self.get_obstacle_map(obs_list_x, obs_list_y)
-        # create motion model
+        # create motion model/行动方式，有4连通、8连通等，这里使用8连通[1,1,sqrt(2)]表示x方向移动1格，y方向移动1格，代价为sqrt(2)
         self.motion_model = self.get_motion_model()
 
-
+    # 节点数据结构
     class Node:
         def __init__(self, x_idx, y_idx, cost, parent_idx):
             self.x_idx = x_idx  # index of grid map
@@ -57,13 +60,15 @@ class AStarPlanner:
         start_node = self.Node(*self.convert_coord_to_idx(start_x, start_y), 0.0, -1)
         goal_node = self.Node(*self.convert_coord_to_idx(goal_x, goal_y), 0.0, -1)
 
+        # 这里有一个需要具备排序功能，python有关于优先队列的实现，需要搜一下
         # TODO: create open_set and closed set
+        
 
         # this is the astar algorithm main loop, you should finish it!
         while (len(open_set) > 0):
             # TODO: 1. pop the node with lowest value of the f function from the open_set, and add it to the closedset
 
-            # plot cur_node
+            # plot cur_node/可视化
             if show_animation:
                 plt.plot(*self.convert_idx_to_coord(cur_node.x_idx, cur_node.y_idx), marker='s', 
                     color='dodgerblue', alpha=0.2)
@@ -80,6 +85,7 @@ class AStarPlanner:
             # TODO: 3. expand neighbors of the current node
             # for i, _ in enumerate(self.motion_model):
 
+        # 这里还是空就说明没找到最优解
         if len(open_set) == 0:
             print("open_set is empty, can't find path")
             return [], []
@@ -147,8 +153,10 @@ class AStarPlanner:
         print("y_length:", self.y_width)
 
         # initialize obstacle map
+        # 创建长宽为x_width和y_width的二维数组，初始值为False
         self.obstacle_map = [[False for _ in range(self.y_width)]
                              for _ in range(self.x_width)]
+        # 生成障碍物地图。检测某个各自点到障碍物的距离是否小于最小安全距离，如果小于，则该点为障碍物
         for x_idx in range(self.x_width):
             for y_idx in range(self.y_width):
                 x_coord, y_coord = self.convert_idx_to_coord(x_idx, y_idx)
@@ -172,8 +180,9 @@ class AStarPlanner:
 
         return motion_model
 
+
 def preprocess_image(image, threshold):
-    # convert to gray image
+    # convert to gray image 
     gray_img = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     # binarization
     _, binary_img = cv2.threshold(gray_img, threshold, 255, cv2.THRESH_BINARY)
@@ -201,27 +210,35 @@ def main():
     start_y = 40.0  # [m]
     goal_x = 140.0  # [m]
     goal_y = 40.0  # [m]
+
+    # NOTE: 如果自己使用的其他地圖尺寸过大，调大grid_res来提高速度
     grid_res = 2.0  # [m]
-    min_safety_dist = 1.0  # [m]
+    min_safety_dist = 1.0  # [m] # 最小安全距离
 
     # read map
     image = cv2.imread(str(pathlib.Path.cwd()) + "/maps/" + "map1.png")
     # cv2.imshow('image', image)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
+    # Debug: show the resolution of loaded image
+    # print(f"Map resolution (height, width, channels): {image.shape}")
+    # input("Press Enter to continue...")
 
+    # 图像预处理
     binary_img = preprocess_image(image, 127)
-    
+
+    # 提取障碍物列表
     obs_list_x, obs_list_y = extract_obstacle_list_from_img(binary_img)
 
-    # plot map info
+    # plot map info/信息可视化
     if show_animation:
         plt.figure(figsize=(12, 12))
         plt.axis("equal")
         plt.plot(obs_list_x, obs_list_y, 'sk', markersize=2)
         plt.plot(start_x, start_y, marker='*', color='lime', markersize=8)
         plt.plot(goal_x, goal_y, marker='*', color='r', markersize=8)
-
+    
+    # 核心作业 
     a_star = AStarPlanner(obs_list_x, obs_list_y, grid_res, min_safety_dist)
     path_x, path_y = a_star.search(start_x, start_y, goal_x, goal_y)
     
