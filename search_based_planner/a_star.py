@@ -64,7 +64,9 @@ class AStarPlanner:
         # TODO: DONE create open_set and closed set
         # open_set is a priority queue implemented by heapq
         open_set = []
-        heapq.heappush(open_set, (self.cal_heuristic_func(start_node, goal_node)+start_node.cost, start_node))
+        open_dict = {}
+        # open_set 里保存的值是f函数值，即 g + h
+        self.push_open_set(self.cal_heuristic_func(start_node, goal_node)+start_node.cost, start_node)
         # closed_set is a dictionary
         closed_set = {}
 
@@ -88,8 +90,9 @@ class AStarPlanner:
             
             # TODO: 2. determine whether the current node is the goal, and if so, stop searching
             if (cur_node.x_idx, cur_node.y_idx) == (goal_node.x_idx, goal_node.y_idx):
-                # TODO: 2.1 如果找到goal，接下来做什么
-                pass
+                # TODO: 2.1 backtrack 里面的参数有待确认
+                path_x, path_y = self.backtracking()
+                return path_x, path_y
 
 
             # TODO: 3. expand neighbors of the current node
@@ -100,10 +103,22 @@ class AStarPlanner:
                     cur_node.cost + neighbor[2],
                     self.get_vec_index(cur_node)
                 )
+                # 检查是否有效
                 if not self.check_node_validity(neighbor_node):
                     continue
                 # TODO： 下面这一行的f值计算错误，需要修改
-                heapq.heappush(open_set, (f_value+neighbor[2]+self.cal_heuristic_func(neighbor_node, goal_node), neighbor_node))
+                # 检查是否在closed set中，即已经被访问过
+                if neighbor_node.get_vec_index() in closed_set:
+                    continue
+                if neighbor_node.get_vec_index() in open_set
+                    # 已经在open set中，检查是否需要更新
+                    pass
+                    if neighbor_node.cost < cur_node.cost:
+                        # 更新open set中的节点
+                else:
+                    # 不在open set中，加入
+                    f_value = neighbor_node.cost + self.cal_heuristic_func(neighbor_node, goal_node)
+                    self.push_open_set(f_value, neighbor_node)
 
                 
 
@@ -143,6 +158,24 @@ class AStarPlanner:
 
     def get_vec_index(self, node):
         return (node.y_idx - self.min_y) * self.x_width + (node.x_idx - self.min_x)
+
+    # 下面两个函数用于操作 open_set, 用少量的额外空间换取更快的查询、更新速度
+    def push_open_set(self, node):
+        idx = node.get_vec_index()
+        if not idx in self.open_dict or node.cost < self.open_dict[idx].cost:
+            self.open_dict[idx] = node
+            heapq.heappush(self.open_set, 
+                           (node.cost + self.cal_heuristic_func(node, self.goal_node), 
+                            node))
+    def pop_open_set(self):
+        # TODO: need implement of lazy deletion 
+        # TODO: 检查在不在closed_set里,如果在就继续pop
+        pass
+        # TODO: 检查是不是过期节点,如果是就继续pop
+        f_value, node = heapq.heappop(self.open_set)
+        self.open_set_indices.remove(node.get_vec_index())
+        return f_value, node
+
 
     def check_node_validity(self, node):
         x_coord, y_coord = self.convert_idx_to_coord(node.x_idx, node.y_idx)
