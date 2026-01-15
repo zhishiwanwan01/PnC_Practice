@@ -61,7 +61,7 @@ class AStarPlanner:
         start_node = self.Node(*self.convert_coord_to_idx(start_x, start_y), 0.0, -1)
         goal_node = self.Node(*self.convert_coord_to_idx(goal_x, goal_y), 0.0, -1)
 
-        # TODO: DONE create open_set and closed set
+        # DONE: create open_set and closed set
         # open_set is a priority queue implemented by heapq
         open_set = []
         open_dict = {}
@@ -72,7 +72,7 @@ class AStarPlanner:
 
         # this is the astar algorithm main loop, you should finish it!
         while (len(open_set) > 0):
-            # TODO: DONE 1. pop the node with lowest value of the f function from the open_set, and add it to the closed_set
+            # DONE: 1. pop the node with lowest value of the f function from the open_set, and add it to the closed_set
 
             f_value, cur_node = heapq.heappop(open_set)
             closed_set[cur_node.get_vec_index()] = cur_node
