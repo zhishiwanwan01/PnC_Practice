@@ -64,7 +64,9 @@ class AStarPlanner:
         # DONE: create open_set and closed set
         # open_set is a priority queue implemented by heapq
         open_set = []
+        # heapq 不能索引内部的元素，所以建立一个dict，用node.idx 索引 node，方便后续实施lazy deletion 和更新
         open_dict = {}
+
         # open_set 里保存的值是f函数值，即 g + h
         self.push_open_set(self.cal_heuristic_func(start_node, goal_node)+start_node.cost, start_node)
         # closed_set is a dictionary
@@ -73,8 +75,7 @@ class AStarPlanner:
         # this is the astar algorithm main loop, you should finish it!
         while (len(open_set) > 0):
             # DONE: 1. pop the node with lowest value of the f function from the open_set, and add it to the closed_set
-
-            f_value, cur_node = heapq.heappop(open_set)
+            f_value, cur_node = self.pop_open_set()
             closed_set[cur_node.get_vec_index()] = cur_node
 
             # plot cur_node
@@ -159,7 +160,7 @@ class AStarPlanner:
     def get_vec_index(self, node):
         return (node.y_idx - self.min_y) * self.x_width + (node.x_idx - self.min_x)
 
-    # 下面两个函数用于操作 open_set, 用少量的额外空间换取更快的查询、更新速度
+    # DONE: open_set 的 push 实现，采用 lazy deletion，即不删除过期节点，只在 pop 的时候检查
     def push_open_set(self, node):
         idx = node.get_vec_index()
         if not idx in self.open_dict or node.cost < self.open_dict[idx].cost:
@@ -167,14 +168,15 @@ class AStarPlanner:
             heapq.heappush(self.open_set, 
                            (node.cost + self.cal_heuristic_func(node, self.goal_node), 
                             node))
+    # DONE: open_set 的 pop 实现，采用 lazy deletion; 期间要检查是不是过期节点,如果是就继续pop
     def pop_open_set(self):
-        # TODO: need implement of lazy deletion 
-        # TODO: 检查在不在closed_set里,如果在就继续pop
-        pass
-        # TODO: 检查是不是过期节点,如果是就继续pop
-        f_value, node = heapq.heappop(self.open_set)
-        self.open_set_indices.remove(node.get_vec_index())
-        return f_value, node
+        while self.open_set:
+            f_value, node = heapq.heappop(self.open_set)
+            idx = node.get_vec_index()
+            if self.open_dict.get(idx) == node:
+                self.open_dict.pop(idx)
+                return f_value, node
+        raise RuntimeError("All nodes in priority queue are stale - algorithm error")
 
 
     def check_node_validity(self, node):
