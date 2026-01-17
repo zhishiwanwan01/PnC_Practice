@@ -90,7 +90,7 @@ class AStarPlanner:
                     plt.pause(0.0000001)
             
             # TODO: 2. determine whether the current node is the goal, and if so, stop searching
-            if (cur_node.x_idx, cur_node.y_idx) == (goal_node.x_idx, goal_node.y_idx):
+            if (cur_node.get_vec_index()) == (goal_node.get_vec_index()):
                 # TODO: 2.1 backtrack 里面的参数有待确认
                 path_x, path_y = self.backtracking()
                 return path_x, path_y
