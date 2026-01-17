@@ -89,11 +89,9 @@ class AStarPlanner:
                 if len(closed_set.keys()) % 10 == 0:
                     plt.pause(0.0000001)
             
-            # TODO: 2. determine whether the current node is the goal, and if so, stop searching
-            if (cur_node.get_vec_index()) == (goal_node.get_vec_index()):
-                # TODO: 2.1 backtrack 里面的参数有待确认
-                path_x, path_y = self.backtracking()
-                return path_x, path_y
+            # DONE: 2. determine whether the current node is the goal, and if so, stop searching
+            if (self.get_vec_index(cur_node)) == (self.get_vec_index(goal_node)):
+                return self.backtracking(cur_node, closed_set)
 
 
             # TODO: 3. expand neighbors of the current node
@@ -162,7 +160,7 @@ class AStarPlanner:
 
     # DONE: open_set 的 push 实现，采用 lazy deletion，即不删除过期节点，只在 pop 的时候检查
     def push_open_set(self, node):
-        idx = node.get_vec_index()
+        idx = self.get_vec_index(node)
         if not idx in self.open_dict or node.cost < self.open_dict[idx].cost:
             self.open_dict[idx] = node
             heapq.heappush(self.open_set, 
@@ -172,7 +170,7 @@ class AStarPlanner:
     def pop_open_set(self):
         while self.open_set:
             f_value, node = heapq.heappop(self.open_set)
-            idx = node.get_vec_index()
+            idx = self.get_vec_index(node)
             if self.open_dict.get(idx) == node:
                 self.open_dict.pop(idx)
                 return f_value, node
