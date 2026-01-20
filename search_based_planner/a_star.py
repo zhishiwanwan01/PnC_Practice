@@ -113,7 +113,7 @@ class AStarPlanner:
             print("open_set is empty, can't find path")
             return [], []
 
-        # TODO: 4. backtrack to get the shortest path
+        # DONE: 4. backtrack to get the shortest path
         path_x, path_y = self.backtracking(goal_node, closed_set)
 
         return path_x, path_y
@@ -133,8 +133,11 @@ class AStarPlanner:
         return path_x, path_y
 
     def cal_heuristic_func(self, node1, node2):
-        # TODO: 5 implement heuristic function to estimate the cost between node 1 and node 2
-        h_value = 0
+        # DONE: 5 implement heuristic function to estimate the cost between node 1 and node 2
+        # eculidean distance
+        dx = node1.x_idx - node2.x_idx
+        dy = node1.y_idx - node2.y_idx
+        h_value = math.hypot(dx, dy)
         return h_value
 
     def convert_idx_to_coord(self, x_idx, y_idx):
