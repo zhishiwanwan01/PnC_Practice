@@ -94,7 +94,7 @@ class AStarPlanner:
                 return self.backtracking(cur_node, closed_set)
 
 
-            # TODO: 3. expand neighbors of the current node
+            # DONE: 3. expand neighbors of the current node
             for dx, dy, move_cost in self.motion_model:
                 next_node = self.Node(
                     cur_node.x_idx + dx,
@@ -106,44 +106,8 @@ class AStarPlanner:
                 if (not self.check_node_validity(next_node) 
                     or next_node.get_vec_index() in closed_set):
                         continue
-                tentative_g_cost = cur_node.cost + move_cost
-                if not self.get_vec_index(next_node) in open_dict:
-                    # 不在open set中，加入
-                    next_node.cost = tentative_g_cost
-                    self.push_open_set(next_node)
-                # TODO: 3.1 这一段和push里检测g cost重复了，可以优化
-                elif tentative_g_cost < open_dict[next_node.get_vec_index()].cost:
-                    # 已经在open set中，检查是否需要更新
-                    next_node.cost = tentative_g_cost
-                    self.push_open_set(next_node)
-
-            # for i, neighbor in enumerate(self.motion_model):
-            #     # 检查是否有效
-            #     if not self.check_node_validity(neighbor_node):
-            #         continue
-            #     neighbor_node = self.Node(
-            #         cur_node.x_idx + neighbor[0],
-            #         cur_node.y_idx + neighbor[1],
-            #         cur_node.cost + neighbor[2],
-            #         self.get_vec_index(cur_node)
-            #     )
-                
-            #     # TODO： 下面这一行的f值计算错误，需要修改
-            #     # 检查是否在closed set中，即已经被访问过
-            #     if neighbor_node.get_vec_index() in closed_set:
-            #         continue
-            #     if neighbor_node.get_vec_index() in open_set
-            #         # 已经在open set中，检查是否需要更新
-            #         pass
-            #         if neighbor_node.cost < cur_node.cost:
-            #             # 更新open set中的节点
-            #     else:
-            #         # 不在open set中，加入
-            #         f_value = neighbor_node.cost + self.cal_heuristic_func(neighbor_node, goal_node)
-            #         self.push_open_set(f_value, neighbor_node)
-
-                
-
+                # push_open_set 里会自动处理已经存在的节点以及cost更小的情况
+                self.push_open_set(next_node)
 
         if len(open_set) == 0:
             print("open_set is empty, can't find path")
@@ -159,12 +123,17 @@ class AStarPlanner:
 
         path_x, path_y = [goal_x], [goal_y]
 
-        # TODO: backtracking from goal node to start node to extract the whole path
-
+        # DONE: 4.1 backtracking from goal node to start node to extract the whole path
+        cur_node = goal_node
+        while cur_node.parent_idx != -1:
+            cur_node = closed_set[cur_node.parent_idx]
+            x_coord, y_coord = self.convert_idx_to_coord(cur_node.x_idx, cur_node.y_idx)
+            path_x.append(x_coord)
+            path_y.append(y_coord)
         return path_x, path_y
 
     def cal_heuristic_func(self, node1, node2):
-        # TODO: implement heuristic function to estimate the cost between node 1 and node 2
+        # TODO: 5 implement heuristic function to estimate the cost between node 1 and node 2
         h_value = 0
         return h_value
 
