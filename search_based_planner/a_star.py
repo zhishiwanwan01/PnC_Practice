@@ -95,29 +95,52 @@ class AStarPlanner:
 
 
             # TODO: 3. expand neighbors of the current node
-            for i, neighbor in enumerate(self.motion_model):
-                neighbor_node = self.Node(
-                    cur_node.x_idx + neighbor[0],
-                    cur_node.y_idx + neighbor[1],
-                    cur_node.cost + neighbor[2],
+            for dx, dy, move_cost in self.motion_model:
+                next_node = self.Node(
+                    cur_node.x_idx + dx,
+                    cur_node.y_idx + dy,
+                    cur_node.cost + move_cost,
                     self.get_vec_index(cur_node)
                 )
                 # 检查是否有效
-                if not self.check_node_validity(neighbor_node):
-                    continue
-                # TODO： 下面这一行的f值计算错误，需要修改
-                # 检查是否在closed set中，即已经被访问过
-                if neighbor_node.get_vec_index() in closed_set:
-                    continue
-                if neighbor_node.get_vec_index() in open_set
-                    # 已经在open set中，检查是否需要更新
-                    pass
-                    if neighbor_node.cost < cur_node.cost:
-                        # 更新open set中的节点
-                else:
+                if (not self.check_node_validity(next_node) 
+                    or next_node.get_vec_index() in closed_set):
+                        continue
+                tentative_g_cost = cur_node.cost + move_cost
+                if not self.get_vec_index(next_node) in open_dict:
                     # 不在open set中，加入
-                    f_value = neighbor_node.cost + self.cal_heuristic_func(neighbor_node, goal_node)
-                    self.push_open_set(f_value, neighbor_node)
+                    next_node.cost = tentative_g_cost
+                    self.push_open_set(next_node)
+                # TODO: 3.1 这一段和push里检测g cost重复了，可以优化
+                elif tentative_g_cost < open_dict[next_node.get_vec_index()].cost:
+                    # 已经在open set中，检查是否需要更新
+                    next_node.cost = tentative_g_cost
+                    self.push_open_set(next_node)
+
+            # for i, neighbor in enumerate(self.motion_model):
+            #     # 检查是否有效
+            #     if not self.check_node_validity(neighbor_node):
+            #         continue
+            #     neighbor_node = self.Node(
+            #         cur_node.x_idx + neighbor[0],
+            #         cur_node.y_idx + neighbor[1],
+            #         cur_node.cost + neighbor[2],
+            #         self.get_vec_index(cur_node)
+            #     )
+                
+            #     # TODO： 下面这一行的f值计算错误，需要修改
+            #     # 检查是否在closed set中，即已经被访问过
+            #     if neighbor_node.get_vec_index() in closed_set:
+            #         continue
+            #     if neighbor_node.get_vec_index() in open_set
+            #         # 已经在open set中，检查是否需要更新
+            #         pass
+            #         if neighbor_node.cost < cur_node.cost:
+            #             # 更新open set中的节点
+            #     else:
+            #         # 不在open set中，加入
+            #         f_value = neighbor_node.cost + self.cal_heuristic_func(neighbor_node, goal_node)
+            #         self.push_open_set(f_value, neighbor_node)
 
                 
 
