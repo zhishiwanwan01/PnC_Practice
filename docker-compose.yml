@@ -33,7 +33,10 @@ services:
     
     environment:
       # X11相关，透传 DISPLAY 环境变量
-      - DISPLAY=${DISPLAY}
+      # - DISPLAY=${DISPLAY}
+      - DISPLAY=192.168.1.101:0.0
+      # Matplotlib 使用 TkAgg 后端（支持 X11 显示）
+      - MPLBACKEND=TkAgg
 
     # ports - 端口映射
     # 8888:8888 - 将容器的 8888 端口映射到主机的 8888 端口
