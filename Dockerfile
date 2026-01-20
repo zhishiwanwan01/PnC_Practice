@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y \
     fontconfig \
     libgl1 \
     libglib2.0-0 \
+    x11-apps \
     && fc-cache -fv \
     && rm -rf /var/lib/apt/lists/*
 

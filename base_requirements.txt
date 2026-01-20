@@ -10,6 +10,7 @@ jupyter==1.1.1              # Jupyter 主包
 jupyterlab==4.3.4           # JupyterLab（现代化的 Jupyter 界面）
 notebook==7.3.2             # Jupyter Notebook
 ipykernel==6.29.5           # Python kernel for Jupyter
+ipympl                      # Jupyter 中的 Matplotlib 支持
 
 # 规控算法核心库（老师指定版本）
 numpy==1.24.2               # 数值计算

@@ -43,6 +43,8 @@ class AStarPlanner:
         def __str__(self):
             return str(self.x_idx) + "," + str(self.x_idx) + "," + str(
                 self.cost) + "," + str(self.parent_idx)
+        def __lt__(self, other):
+            return self.cost < other.cost
 
     def search(self, start_x, start_y, goal_x, goal_y):
         """
@@ -60,38 +62,38 @@ class AStarPlanner:
         # construct start and goal node
         start_node = self.Node(*self.convert_coord_to_idx(start_x, start_y), 0.0, -1)
         goal_node = self.Node(*self.convert_coord_to_idx(goal_x, goal_y), 0.0, -1)
-
+        self.goal_node = goal_node
         # DONE: create open_set and closed set
         # open_set is a priority queue implemented by heapq
-        open_set = []
+        self.open_set = []
         # heapq 不能索引内部的元素，所以建立一个dict，用node.idx 索引 node，方便后续实施lazy deletion 和更新
-        open_dict = {}
+        self.open_dict = {}
 
         # open_set 里保存的值是f函数值，即 g + h
-        self.push_open_set(self.cal_heuristic_func(start_node, goal_node)+start_node.cost, start_node)
+        self.push_open_set(start_node)
         # closed_set is a dictionary
-        closed_set = {}
+        self.closed_set = {}
 
         # this is the astar algorithm main loop, you should finish it!
-        while (len(open_set) > 0):
+        while (len(self.open_set) > 0):
             # DONE: 1. pop the node with lowest value of the f function from the open_set, and add it to the closed_set
             f_value, cur_node = self.pop_open_set()
-            closed_set[cur_node.get_vec_index()] = cur_node
+            self.closed_set[self.get_vec_index(cur_node)] = cur_node
 
             # plot cur_node
             if show_animation:
-                plt.plot(*self.convert_idx_to_coord(cur_node.x_idx, cur_node.y_idx), marker='s', 
+                plt.plot(*self.convert_idx_to_coord(cur_node.x_idx, cur_node.y_idx), marker='s',
                     color='dodgerblue', alpha=0.2)
                 # for stopping simulation with the esc key
                 plt.gcf().canvas.mpl_connect('key_release_event',
                                              lambda event: [exit(
                                                  0) if event.key == 'escape' else None])
-                if len(closed_set.keys()) % 10 == 0:
+                if len(self.closed_set.keys()) % 10 == 0:
                     plt.pause(0.0000001)
             
             # DONE: 2. determine whether the current node is the goal, and if so, stop searching
             if (self.get_vec_index(cur_node)) == (self.get_vec_index(goal_node)):
-                return self.backtracking(cur_node, closed_set)
+                return self.backtracking(cur_node, self.closed_set)
 
 
             # DONE: 3. expand neighbors of the current node
@@ -104,17 +106,17 @@ class AStarPlanner:
                 )
                 # 检查是否有效
                 if (not self.check_node_validity(next_node) 
-                    or next_node.get_vec_index() in closed_set):
+                    or self.get_vec_index(next_node) in self.closed_set):
                         continue
                 # push_open_set 里会自动处理已经存在的节点以及cost更小的情况
                 self.push_open_set(next_node)
 
-        if len(open_set) == 0:
+        if len(self.open_set) == 0:
             print("open_set is empty, can't find path")
             return [], []
 
         # DONE: 4. backtrack to get the shortest path
-        path_x, path_y = self.backtracking(goal_node, closed_set)
+        path_x, path_y = self.backtracking(goal_node, self.closed_set)
 
         return path_x, path_y
 
